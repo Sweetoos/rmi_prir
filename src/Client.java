@@ -7,23 +7,23 @@ public class Client {
             Registry registry = LocateRegistry.getRegistry("localhost", 1099);
             Gauss service = (Gauss) registry.lookup("GaussService");
 
-            int[] sizes = {10, 100, 1000, 10000};
+            int[] sizes = {10, 100, 1000,10000};
             for (int size : sizes) {
                 System.out.println("Size: " + size);
 
                 double[][] matrix = generateRandomMatrix(size);
 
-                // Sekwencyjne obliczenia
+                // Sekwencyjne rozwiązanie
                 double[][] sequentialMatrix = copyMatrix(matrix);
                 long startSeq = System.nanoTime();
                 sequentialGaussElimination(sequentialMatrix);
                 long endSeq = System.nanoTime();
                 System.out.println("Sequential: " + (endSeq - startSeq) / 1e6 + " ms");
 
-                // Równoległe obliczenia
+                // Równoległe rozwiązanie
                 double[][] parallelMatrix = copyMatrix(matrix);
                 long startPar = System.nanoTime();
-                parallelGaussElimination(service, parallelMatrix);
+                double[][] result = service.eliminate(parallelMatrix);
                 long endPar = System.nanoTime();
                 System.out.println("Parallel: " + (endPar - startPar) / 1e6 + " ms");
             }
@@ -60,13 +60,6 @@ public class Client {
                     matrix[i][j] -= factor * matrix[k][j];
                 }
             }
-        }
-    }
-
-    private static void parallelGaussElimination(Gauss service, double[][] matrix) throws Exception {
-        int n = matrix.length;
-        for (int k = 0; k < n; k++) {
-            service.eliminate(matrix, k);
         }
     }
 }

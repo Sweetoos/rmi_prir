@@ -8,6 +8,8 @@ public class Server {
             Registry registry = LocateRegistry.createRegistry(1099);
             registry.rebind("GaussService", service);
             System.out.println("RMI server started");
+
+            Runtime.getRuntime().addShutdownHook(new Thread(service::shutdown));
         } catch (Exception e) {
             e.printStackTrace();
         }
